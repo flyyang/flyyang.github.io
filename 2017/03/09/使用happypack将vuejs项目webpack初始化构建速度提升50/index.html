@@ -1,0 +1,1009 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="happypack,webpack,vuejs,性能优化," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Vuejs在经过一两年发力之后，越来越受广大开发者的欢迎。Vue 全家桶带来便捷的同时，也带来一些问题。比如webpack的初始化构建速度问题。以我手中的某一个中小型项目来说，在开发模式下，初次编译耗时约50秒。在某些场景下，这是不可接受的。 网上查到的webpack的优化方式大概有四五种，本文介绍如何使用happypack将初始化构建速度提升50%or更多。">
+<meta name="keywords" content="happypack,webpack,vuejs,性能优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用happypack将vuejs项目webpack初始化构建速度提升50%">
+<meta property="og:url" content="https://flyyang.github.io/2017/03/09/使用happypack将vuejs项目webpack初始化构建速度提升50/index.html">
+<meta property="og:site_name" content="flyyang&#39;s Blog">
+<meta property="og:description" content="Vuejs在经过一两年发力之后，越来越受广大开发者的欢迎。Vue 全家桶带来便捷的同时，也带来一些问题。比如webpack的初始化构建速度问题。以我手中的某一个中小型项目来说，在开发模式下，初次编译耗时约50秒。在某些场景下，这是不可接受的。 网上查到的webpack的优化方式大概有四五种，本文介绍如何使用happypack将初始化构建速度提升50%or更多。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://flyyang.github.io/images/happypack1.png">
+<meta property="og:image" content="https://flyyang.github.io/images/happypack-cache.png">
+<meta property="og:image" content="https://flyyang.github.io/images/happypack-eslint.png">
+<meta property="og:updated_time" content="2018-08-12T14:17:50.613Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用happypack将vuejs项目webpack初始化构建速度提升50%">
+<meta name="twitter:description" content="Vuejs在经过一两年发力之后，越来越受广大开发者的欢迎。Vue 全家桶带来便捷的同时，也带来一些问题。比如webpack的初始化构建速度问题。以我手中的某一个中小型项目来说，在开发模式下，初次编译耗时约50秒。在某些场景下，这是不可接受的。 网上查到的webpack的优化方式大概有四五种，本文介绍如何使用happypack将初始化构建速度提升50%or更多。">
+<meta name="twitter:image" content="https://flyyang.github.io/images/happypack1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://flyyang.github.io/2017/03/09/使用happypack将vuejs项目webpack初始化构建速度提升50/"/>
+
+
+
+
+
+  <title> 使用happypack将vuejs项目webpack初始化构建速度提升50% | flyyang's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-98816389-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">flyyang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://flyyang.github.io/2017/03/09/使用happypack将vuejs项目webpack初始化构建速度提升50/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="flyyang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用happypack将vuejs项目webpack初始化构建速度提升50%
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-09T23:28:08+08:00">
+                2017-03-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/03/09/使用happypack将vuejs项目webpack初始化构建速度提升50/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/03/09/使用happypack将vuejs项目webpack初始化构建速度提升50/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计</span>
+                
+                <span title="字数统计">
+                  1,151
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="https://github.com/vuejs/vue" target="_blank" rel="noopener">Vuejs</a>在经过一两年发力之后，越来越受广大开发者的欢迎。Vue 全家桶带来便捷的同时，也带来一些问题。比如<a href="https://webpack.js.org/" target="_blank" rel="noopener">webpack</a>的初始化构建速度问题。以我手中的某一个中小型项目来说，在开发模式下，初次编译耗时约50秒。在某些场景下，这是不可接受的。</p>
+<p>网上查到的webpack的优化方式大概有四五种，本文介绍如何使用<a href="https://github.com/amireh/happypack" target="_blank" rel="noopener">happypack</a>将初始化构建速度提升50%or更多。</p>
+<a id="more"></a>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>PC: 2核2G</li>
+<li>Webpack 2.1</li>
+<li>Vue 2.2.1 以及Vue 2.0 全家桶</li>
+<li>happypack 3.0.3</li>
+</ul>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>Webpack 打包工具初始化构建时间随着项目的变大，变得越来越慢。一次构建需要一两分钟，在紧急查看一个问题时，特别让人懊恼。从原理上来讲，Webpack本身无非是管理所有依赖的文件，解析他们，将他们pipe起来，交给一个个loader去处理这些文件，最后构建出我们需要的bundle出来。Happypack的出发点就是，让可以并发执行的loader，并发起来，加快构建。</p>
+<p>安装happypack:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev happypack</span><br></pre></td></tr></table></figure>
+<p>使用happypack:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">var HappyPack = require(&apos;happypack&apos;);</span><br><span class="line"></span><br><span class="line">// 然后在webpack.config.js的plugin处添加</span><br><span class="line"></span><br><span class="line">new HappyPack(&#123;</span><br><span class="line">  // loaders is the only required parameter:</span><br><span class="line">  loaders: [ &apos;babel?presets[]=es2015&apos; ],</span><br><span class="line"></span><br><span class="line">  // customize as needed, see Configuration below</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">// 在loaders处替换为happypack的loader</span><br><span class="line"></span><br><span class="line">loaders: &#123;</span><br><span class="line">  test: /.js$/,</span><br><span class="line">  loaders: [ &apos;happypack/loader&apos; ],</span><br><span class="line">  include: [</span><br><span class="line">    // ...</span><br><span class="line">  ],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在配置多个 happypack loader 的情况下，一般可指明 happypack 的id:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> HappyPack(&#123;</span><br><span class="line">  id: <span class="string">'babel'</span>,</span><br><span class="line">  loaders: [ <span class="string">'babel-loader'</span> ],</span><br><span class="line">&#125;),</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> &#123;</span><br><span class="line">  test: /\.js$/,</span><br><span class="line">  include: path.join(projectRoot, &apos;src&apos;),</span><br><span class="line">  exclude: /node_modules/,</span><br><span class="line">  loader: &apos;happypack/loader?id=babel&apos;,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="实验一"><a href="#实验一" class="headerlink" title="实验一"></a>实验一</h3><p><img src="/images/happypack1.png" alt="实验一"></p>
+<ol>
+<li><p>happypack + babel。将js文件交由happypack去处理，性能提升9%。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> HappyPack(&#123;</span><br><span class="line">  id: <span class="string">'babel'</span>,</span><br><span class="line">  loaders: [ <span class="string">'babel-loader'</span> ],</span><br><span class="line">&#125;),</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  test: <span class="regexp">/\.js$/</span>,</span><br><span class="line">  include: path.join(projectRoot, <span class="string">'src'</span>),</span><br><span class="line">  exclude: <span class="regexp">/node_modules/</span>,</span><br><span class="line">  loader: <span class="string">'happypack/loader?id=babel'</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>由于看到性能越来越差，怀疑是happypack的cache问题，禁止cache。飙升至22%。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> HappyPack(&#123;</span><br><span class="line">  id: <span class="string">'babel'</span>,</span><br><span class="line">  cache: <span class="literal">false</span>,</span><br><span class="line">  loaders: [ <span class="string">'babel-loader'</span> ],</span><br><span class="line">&#125;),</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>打开babel cache。性能变低。怀疑babel cache并不好用，命中率过低。</p>
+</li>
+<li><p>在2的结果上加url loader，性能低了一点。<code>url-loader</code>本身做的事情<a href="https://github.com/amireh/happypack/issues/14" target="_blank" rel="noopener">很少</a>，通过happypack处理，反而变慢。</p>
+</li>
+<li><p>配合less-loader , css-loader，Extract plugin。相对于2，略有提升。</p>
+</li>
+<li><p>由于目 happypack 暂时不支持 vue-loader。所以只能在vue-loader内部搞一些<a href="http://vue-loader.vuejs.org/en/configurations/advanced.html" target="_blank" rel="noopener">事情</a>。vue 模板本身是通过三个部分来组成的。那么通过配置vue-loader的options部分，将js部分交由happypack处理，得到了最高分。29.52%。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  test: /\.vue$/,</span><br><span class="line">  include:  src,</span><br><span class="line">  exclude: /node_modules/,</span><br><span class="line">  use: [</span><br><span class="line">    &#123;</span><br><span class="line">      loader: &apos;vue-loader&apos;,</span><br><span class="line">      options: &#123;</span><br><span class="line">        loaders: &#123;</span><br><span class="line">          css: xxx,</span><br><span class="line">          less: xxx,</span><br><span class="line">          js: &apos;happypack/loader?id=babel&apos;</span><br><span class="line">        &#125;,</span><br><span class="line">     &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="实验二——cache再测试"><a href="#实验二——cache再测试" class="headerlink" title="实验二——cache再测试"></a>实验二——cache再测试</h3><p><img src="/images/happypack-cache.png" alt="实验二"></p>
+<ol>
+<li>happypack在处理越来越多的文件后，cache命中率提升，效率也有不少提升—— 2.79 %</li>
+<li>babel的cache似乎仍然会有regression问题。</li>
+</ol>
+<blockquote>
+<p>实践中发现，js文件的cache打开会加快速度，css、less等cache应设置为false，否则会有编译不完全的问题，原因未知。</p>
+</blockquote>
+<h3 id="实验三——-调节threads，共享threads-pool"><a href="#实验三——-调节threads，共享threads-pool" class="headerlink" title="实验三—— 调节threads，共享threads pool"></a>实验三—— 调节threads，共享threads pool</h3><p>直接上结论。不要自己去定义，在我的环境里默认的就是最OK的，线程数多了regression比较严重。</p>
+<h3 id="实验四-–-eslint"><a href="#实验四-–-eslint" class="headerlink" title="实验四 – eslint"></a>实验四 – eslint</h3><p><img src="/images/happypack-eslint.png" alt="实验四"></p>
+<p>eslint通过happyloader提升惊人。达到50.84%。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ol>
+<li>happypack不完全兼容vue-loader。<a href="https://github.com/amireh/happypack/wiki/Loader-Compatibility-List" target="_blank" rel="noopener">兼容列表</a>。但可以通过options来将不同的配置交由 happypack 处理。</li>
+<li>eslint和babel是最大的提升点。不要盲目全上 happypack。有些本身没几个文件，或者loader本身不太耗时，不需要由 happypack处理。</li>
+<li>babel的缓存帮助不大，happypack的缓存可开启，但是会导致css编译不全（原因未知），所以css、less等应禁用缓存。</li>
+<li>谨慎调节threads，和共享pool。</li>
+</ol>
+<p>配置示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">  new HappyPack(&#123;</span><br><span class="line">    id: &apos;babel&apos;,</span><br><span class="line">    loaders: [ &apos;babel-loader?cacheDirectory=true&apos; ],</span><br><span class="line">  &#125;),</span><br><span class="line">  new HappyPack(&#123;</span><br><span class="line">    id: &apos;css&apos;,</span><br><span class="line">    cache: false,</span><br><span class="line">    loaders: [ &apos;css-loader?mportLoaders=1&apos; ],</span><br><span class="line">  &#125;),</span><br><span class="line">  new HappyPack(&#123;</span><br><span class="line">    id: &apos;less&apos;,</span><br><span class="line">    cache: false,</span><br><span class="line">    loaders: [ &apos;less-loader&apos; ],</span><br><span class="line">  &#125;),</span><br><span class="line">  new HappyPack(&#123;</span><br><span class="line">    id: &apos;eslint&apos;,</span><br><span class="line">    cache: false,</span><br><span class="line">    loaders: [&apos;eslint-loader&apos;],</span><br><span class="line">  &#125;),</span><br><span class="line"></span><br><span class="line"> ...</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  test: /\.js$/,</span><br><span class="line">  include: path.join(projectRoot, &apos;src&apos;),</span><br><span class="line">  exclude: /node_modules/,</span><br><span class="line">  loader: &apos;happypack/loader?id=babel&apos;,</span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">   var cssLoader = ExtractTextPlugin.extract(&#123;</span><br><span class="line">    use: [</span><br><span class="line">      &#123;</span><br><span class="line">        loader: &apos;happypack/loader?id=css&apos;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">    fallback: &apos;vue-style-loader&apos;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  var lessLoader = ExtractTextPlugin.extract(&#123;</span><br><span class="line">    use: [</span><br><span class="line">      &apos;happypack/loader?id=css&apos;,</span><br><span class="line">      &apos;happypack/loader?id=less&apos;,</span><br><span class="line">    ],</span><br><span class="line">    fallback: &apos;vue-style-loader&apos;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">  test: /\.vue$/,</span><br><span class="line">  include: path.join(projectRoot, &apos;src&apos;),</span><br><span class="line">  exclude: /node_modules/,</span><br><span class="line">  use: [</span><br><span class="line">    &#123;</span><br><span class="line">      loader: &apos;vue-loader&apos;,</span><br><span class="line">      options: &#123;</span><br><span class="line">        loaders: &#123;</span><br><span class="line">          css: cssLoader,</span><br><span class="line">          less: lessLoader,</span><br><span class="line">          js: &apos;happypack/loader?id=babel&apos;</span><br><span class="line">        &#125;,</span><br><span class="line">        postcss: &#123;</span><br><span class="line">          plugins: [</span><br><span class="line">            require(&apos;postcss-cssnext&apos;)(),</span><br><span class="line">          ],</span><br><span class="line">        &#125;</span><br><span class="line">     &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/happypack/" rel="tag"># happypack</a>
+          
+            <a href="/tags/webpack/" rel="tag"># webpack</a>
+          
+            <a href="/tags/vuejs/" rel="tag"># vuejs</a>
+          
+            <a href="/tags/性能优化/" rel="tag"># 性能优化</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/07/javascript中的microtask与task/" rel="next" title="JavaScript中的microtask与task">
+                <i class="fa fa-chevron-left"></i> JavaScript中的microtask与task
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/03/GNU-Readline-让命令行编辑倍速提升/" rel="prev" title="GNU Readline, 让命令行编辑倍速提升">
+                GNU Readline, 让命令行编辑倍速提升 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/flyyang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/5221503125/" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.douban.com/people/beautifulmind/" target="_blank" title="豆瓣">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  豆瓣
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/flyyang__/activities" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境"><span class="nav-number">1.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">2.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验"><span class="nav-number">3.</span> <span class="nav-text">实验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实验一"><span class="nav-number">3.1.</span> <span class="nav-text">实验一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验二——cache再测试"><span class="nav-number">3.2.</span> <span class="nav-text">实验二——cache再测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验三——-调节threads，共享threads-pool"><span class="nav-number">3.3.</span> <span class="nav-text">实验三—— 调节threads，共享threads pool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验四-–-eslint"><span class="nav-number">3.4.</span> <span class="nav-text">实验四 – eslint</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://flyyang.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://flyyang.github.io/2017/03/09/使用happypack将vuejs项目webpack初始化构建速度提升50/';
+          this.page.identifier = '2017/03/09/使用happypack将vuejs项目webpack初始化构建速度提升50/';
+          this.page.title = '使用happypack将vuejs项目webpack初始化构建速度提升50%';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://flyyang.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+
+</body>
+</html>
