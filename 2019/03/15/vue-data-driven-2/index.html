@@ -75,7 +75,7 @@
 <meta property="og:image" content="https://user-images.githubusercontent.com/3912408/54372287-0138c280-46b6-11e9-8b8c-307f2aac6ebe.png">
 <meta property="og:image" content="https://user-images.githubusercontent.com/3912408/54376419-00a42a00-46be-11e9-8c9d-18e37d34baaa.png">
 <meta property="og:image" content="https://user-images.githubusercontent.com/3912408/54383284-abbbe000-46cc-11e9-86d3-f72cca7c96cd.png">
-<meta property="og:updated_time" content="2019-03-14T18:59:17.524Z">
+<meta property="og:updated_time" content="2019-03-14T19:02:06.733Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入浅出 Vue 数据驱动（二）">
 <meta name="twitter:description" content="数据驱动开发是 Vue 的一大特征。 那么什么是数据驱动呢？在 Vue 的概念下，我们可以通过 data 来初始化页面；后续可以通过操作data 的值，来改变页面。整个过程都是围绕 data 来变化，所以称之为数据驱动，其中操作数据更新页面又常被称为响应式。 在 深入浅出 Vue 数据驱动 （一） 中，我们已经介绍了初始化的部分，本节主要介绍响应式是如何实现的。">
@@ -369,9 +369,9 @@
         <p>数据驱动开发是 Vue 的一大特征。</p>
 <p>那么什么是数据驱动呢？在 Vue 的概念下，我们可以通过 data 来初始化页面；后续可以通过操作data 的值，来改变页面。整个过程都是围绕 data 来变化，所以称之为数据驱动，其中操作数据更新页面又常被称为响应式。</p>
 <p>在 <a href="https://github.com/flyyang/blog/issues/18" target="_blank" rel="noopener">深入浅出 Vue 数据驱动 （一）</a> 中，我们已经介绍了初始化的部分，本节主要介绍响应式是如何实现的。</p>
-<p><img src="https://user-images.githubusercontent.com/3912408/54339498-f9562f80-466f-11e9-9d15-29365b00bca5.png" alt="image"></p>
 <a id="more"></a>
-<h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>由上图可知，我们改变了 message 的值，对应的 ui 就会发生变化。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">App.message = &apos;Some one say hello to Vue!&apos;;</span><br></pre></td></tr></table></figure></p>
+<h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p><img src="https://user-images.githubusercontent.com/3912408/54339498-f9562f80-466f-11e9-9d15-29365b00bca5.png" alt="image"></p>
+<p>由上图可知，我们改变了 message 的值，对应的 ui 就会发生变化。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">App.message = &apos;Some one say hello to Vue!&apos;;</span><br></pre></td></tr></table></figure></p>
 <p>而在正常情况下，给属性赋值就是赋值，没有任何特别之处：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">const a = &#123; b: 1&#125;</span><br><span class="line">a.b = 2;</span><br><span class="line"></span><br><span class="line">a.b // 输出 2</span><br></pre></td></tr></table></figure>
 <p>在 Vue 里面却变成 ui 变更，跟我们赋值操作做的看起来不是一件事儿。这说明 Vue 在把自己<strong>挂载到dom之前</strong>，做了一些工作。我们知道在 es5 中，可以通过 Object.defineProperty 来实现赋值 set 添加其他功能。</p>
