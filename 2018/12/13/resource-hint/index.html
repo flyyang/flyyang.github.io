@@ -1,0 +1,953 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="性能优化,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="Resource Hint 是什么？简而言之。辅助浏览器用来做资源优化的 指令。 为什么需要这些 指令 呢？ 浏览器已经长大成人了，已经懂得如何做优化了。但是具体到每个应用，各有不同，要具体方案具体分析。这就是指令的目的。 一些常见的指令：  dns-prefetch preconnect prefetch preload prerender  这些指令通常写在 head 标签的 meta 里,">
+<meta name="keywords" content="性能优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Resource Hint 介绍">
+<meta property="og:url" content="https://flyyang.me/2018/12/13/resource-hint/index.html">
+<meta property="og:site_name" content="flyyang&#39;s Blog">
+<meta property="og:description" content="Resource Hint 是什么？简而言之。辅助浏览器用来做资源优化的 指令。 为什么需要这些 指令 呢？ 浏览器已经长大成人了，已经懂得如何做优化了。但是具体到每个应用，各有不同，要具体方案具体分析。这就是指令的目的。 一些常见的指令：  dns-prefetch preconnect prefetch preload prerender  这些指令通常写在 head 标签的 meta 里,">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://user-images.githubusercontent.com/3912408/49926966-d2b11d00-fef7-11e8-9fee-7268923b83cc.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/3912408/49926951-c88f1e80-fef7-11e8-919e-d9b053c3ff04.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/3912408/49928614-7b14b080-fefb-11e8-8773-6f2bf09581f2.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/3912408/49934602-c8981a00-ff09-11e8-82d8-b59131786603.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/3912408/49937412-95f21f80-ff11-11e8-8a11-7be7013dee18.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/3912408/49935783-f894ec80-ff0c-11e8-848f-38a2fc09e806.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/3912408/49934634-dc438080-ff09-11e8-9c24-7c23946b1b47.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/3912408/49934650-e82f4280-ff09-11e8-8f90-76dfd525934d.png">
+<meta property="og:updated_time" content="2019-03-11T16:42:19.874Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Resource Hint 介绍">
+<meta name="twitter:description" content="Resource Hint 是什么？简而言之。辅助浏览器用来做资源优化的 指令。 为什么需要这些 指令 呢？ 浏览器已经长大成人了，已经懂得如何做优化了。但是具体到每个应用，各有不同，要具体方案具体分析。这就是指令的目的。 一些常见的指令：  dns-prefetch preconnect prefetch preload prerender  这些指令通常写在 head 标签的 meta 里,">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/3912408/49926966-d2b11d00-fef7-11e8-9fee-7268923b83cc.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://flyyang.me/2018/12/13/resource-hint/">
+
+
+
+
+
+  <title> Resource Hint 介绍 | flyyang's Blog </title>
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">flyyang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://flyyang.me/2018/12/13/resource-hint/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="flyyang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                Resource Hint 介绍
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-13T20:21:41+08:00">
+                2018-12-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计</span>
+                
+                <span title="字数统计">
+                  876
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Resource-Hint-是什么？"><a href="#Resource-Hint-是什么？" class="headerlink" title="Resource Hint 是什么？"></a>Resource Hint 是什么？</h2><p>简而言之。辅助浏览器用来做资源优化的 <code>指令</code>。</p>
+<p>为什么需要这些 <code>指令</code> 呢？</p>
+<p>浏览器已经长大成人了，已经懂得如何做优化了。但是具体到每个应用，各有不同，要具体方案具体分析。<br>这就是指令的目的。</p>
+<p>一些常见的指令：</p>
+<ul>
+<li>dns-prefetch</li>
+<li>preconnect</li>
+<li>prefetch</li>
+<li>preload</li>
+<li>prerender</li>
+</ul>
+<p>这些指令通常写在 head 标签的 meta 里, 形式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel=&quot;xxx&quot; href=&quot;yyy&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>但也会有些不同。下面做详细介绍。</p>
+<a id="more"></a>
+<h2 id="Resource-Hint-分类介绍"><a href="#Resource-Hint-分类介绍" class="headerlink" title="Resource Hint  分类介绍"></a>Resource Hint  分类介绍</h2><p>先介绍 <code>dns-prefetch</code> 和 <code>preconnect</code>。在介绍这两者之前， 先看一下这张图：</p>
+<p><img src="https://user-images.githubusercontent.com/3912408/49926966-d2b11d00-fef7-11e8-9fee-7268923b83cc.png" alt="image"></p>
+<p><code>dns-prefetch</code> 是用来解决 <code>DNS Lookup</code> 的问题。<code>dns-preconnect</code> 解决 <code>DNS Lookup</code> + <code>Initial connection</code> + <code>SSL</code> 问题。</p>
+<h3 id="dns-prefetch"><a href="#dns-prefetch" class="headerlink" title="dns-prefetch"></a>dns-prefetch</h3><p><img src="https://user-images.githubusercontent.com/3912408/49926951-c88f1e80-fef7-11e8-919e-d9b053c3ff04.png" alt="image"></p>
+<p>dns-prefech 支持很广泛。从 ie9 到现代浏览器，都支持此特性。由于支持比较早，使用方法也比较多：</p>
+<ol>
+<li>服务端返回 <code>X-DNS-Prefetch-Control</code></li>
+<li>在页面 head 部分添加 meta 标签。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=&quot;http://a.com&quot;&gt; A) Default HTTPS: No prefetching &lt;/a&gt;</span><br><span class="line">&lt;meta http-equiv=&quot;x-dns-prefetch-control&quot; content=&quot;on&quot;&gt;</span><br><span class="line">&lt;a href=&quot;http://b.com&quot;&gt; B) Manual opt-in: Prefetch domain resolution. &lt;/a&gt;</span><br><span class="line">&lt;meta http-equiv=&quot;x-dns-prefetch-control&quot; content=&quot;off&quot;&gt;</span><br><span class="line">&lt;a href=&quot;http://c.com&quot;&gt; C) Manual opt-out: Don&apos;t prefetch domain resolution &lt;/a&gt;</span><br><span class="line">&lt;meta http-equiv=&quot;x-dns-prefetch-control&quot; content=&quot;on&quot;&gt;</span><br><span class="line">&lt;a href=&quot;http://d.com&quot;&gt; D) Already opted out: Don&apos;t prefetch domain resolution. &lt;/a&gt;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>手动指定。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel=&quot;dns-prefetch&quot; href=&quot;hostname&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>注意， chrome 71 似乎不再支持 dns-prefetch 。测试用例见  <a href="https://github.com/flyyang/resource-hint-demo/tree/master/dns-prefetch" target="_blank" rel="noopener">dns-prefetch 测试用例</a>。</p>
+<h3 id="preconnect"><a href="#preconnect" class="headerlink" title="preconnect"></a>preconnect</h3><p><img src="https://user-images.githubusercontent.com/3912408/49928614-7b14b080-fefb-11e8-8773-6f2bf09581f2.png" alt="image"></p>
+<p>preconnect 的作用已经介绍。使用方法也比较简单：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel=&quot;preconnect&quot; href=&quot;//example.com&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>在解决了网络的问题之后, 我们再来看加载的问题：</p>
+<h3 id="preload"><a href="#preload" class="headerlink" title="preload"></a>preload</h3><p>重要资源越早加载越好。</p>
+<p><img src="https://user-images.githubusercontent.com/3912408/49934602-c8981a00-ff09-11e8-82d8-b59131786603.png" alt="image"></p>
+<p>通常浏览器加载时散列状的，或者说是一块一块并发的。<br><img src="https://user-images.githubusercontent.com/3912408/49937412-95f21f80-ff11-11e8-8a11-7be7013dee18.png" alt="image"></p>
+<p>preload 却可以形成如下的效果：</p>
+<p><img src="https://user-images.githubusercontent.com/3912408/49935783-f894ec80-ff0c-11e8-848f-38a2fc09e806.png" alt="image"></p>
+<p>什么是重要资源呢，在可控范围内，我认为所有用到的资源都可以是重要资源。当然也可以按优先级来区分。要具体问题具体分析。</p>
+<p>更多参考 <a href="https://www.w3.org/TR/2017/CR-preload-20171026/" target="_blank" rel="noopener">w3c preload</a>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">preload 并不属于 w3c 的 resource hint，但是目标确是一致的。所以拿到了这里统一分析。</span><br></pre></td></tr></table></figure>
+<h3 id="prefetch"><a href="#prefetch" class="headerlink" title="prefetch"></a>prefetch</h3><p>接下来可能会用到的资源偷偷加载。</p>
+<p><img src="https://user-images.githubusercontent.com/3912408/49934634-dc438080-ff09-11e8-9c24-7c23946b1b47.png" alt="image">。</p>
+<p>需要特别说明的是，<code>webpack</code> 支持了 preload 和 prefetch 功能。</p>
+<p>比如我们需要在点击的时候异步加载一个组件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$(&apos;#test&apos;).click(() =&gt; &#123;</span><br><span class="line">  (name) =&gt;  import(/* webpackPrefetch: true */&apos;src/component/$&#123;name&#125;&apos;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>以往的异步加载是点击时，拉取对应的资源。而通过该指令可以在浏览器空闲时偷偷拉取资源。</p>
+<h3 id="prerender"><a href="#prerender" class="headerlink" title="prerender"></a>prerender</h3><p>干脆偷偷加载一个新页面得了。<br><img src="https://user-images.githubusercontent.com/3912408/49934650-e82f4280-ff09-11e8-8f90-76dfd525934d.png" alt="image"></p>
+<p>使用方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel=&quot;prerender&quot; src=&quot;some-url&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>chrome 的 prerender 并不会直接渲染页面。在各个浏览器测试功能都比较鸡肋。参考<a href="https://groups.google.com/a/chromium.org/forum/#!topic/blink-dev/0nSxuuv9bBw" target="_blank" rel="noopener">Intent to Deprecate and Remove: Prerender</a>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>所有的这些指令，都不会占用你的渲染进程。而是浏览器提供的额外 bonus。</li>
+<li>preconnect 比 dns-prefetch 做的更进一步，优先选用 preconnect。</li>
+<li>preload 和 prefetch 配合 webpack 使用更佳。</li>
+<li>prerender 功能有些鸡肋。慎用。</li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://groups.google.com/a/chromium.org/forum/#!topic/blink-dev/0nSxuuv9bBw" target="_blank" rel="noopener">Intent to Deprecate and Remove: Prerender</a></li>
+<li><a href="https://www.w3.org/TR/2017/CR-preload-20171026/" target="_blank" rel="noopener">w3c preload</a></li>
+<li><a href="https://www.w3.org/TR/resource-hints/" target="_blank" rel="noopener">w3c Resource Hint</a></li>
+<li><a href="https://medium.com/webpack/link-rel-prefetch-preload-in-webpack-51a52358f84c" target="_blank" rel="noopener">webpack prefetch preload</a></li>
+<li><a href="https://github.com/flyyang/resource-hint-demo" target="_blank" rel="noopener">测试用例</a></li>
+</ul>
+<h2 id="ISSUE"><a href="#ISSUE" class="headerlink" title="ISSUE"></a>ISSUE</h2><p>有问题？来 <a href="https://github.com/flyyang/blog/issues/10" target="_blank" rel="noopener">github</a> 一起讨论。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/性能优化/" rel="tag"># 性能优化</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/25/nodejs-如何保证安装-node-modules-的一致性？/" rel="next" title="nodejs 如何保证安装 node_modules 的一致性？">
+                <i class="fa fa-chevron-left"></i> nodejs 如何保证安装 node_modules 的一致性？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/21/xdomain-analysis/" rel="prev" title="xdomain.js 实现原理分析">
+                xdomain.js 实现原理分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="">
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/flyyang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/5221503125/" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.douban.com/people/beautifulmind/" target="_blank" title="豆瓣">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  豆瓣
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/flyyang__/activities" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Resource-Hint-是什么？"><span class="nav-number">1.</span> <span class="nav-text">Resource Hint 是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Resource-Hint-分类介绍"><span class="nav-number">2.</span> <span class="nav-text">Resource Hint  分类介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dns-prefetch"><span class="nav-number">2.1.</span> <span class="nav-text">dns-prefetch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#preconnect"><span class="nav-number">2.2.</span> <span class="nav-text">preconnect</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#preload"><span class="nav-number">2.3.</span> <span class="nav-text">preload</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#prefetch"><span class="nav-number">2.4.</span> <span class="nav-text">prefetch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#prerender"><span class="nav-number">2.5.</span> <span class="nav-text">prerender</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ISSUE"><span class="nav-number">5.</span> <span class="nav-text">ISSUE</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
