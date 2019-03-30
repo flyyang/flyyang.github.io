@@ -63,7 +63,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="flyyang&#39;s Blog">
-<meta property="og:url" content="https://flyyang.me/tags/vue/index.html">
+<meta property="og:url" content="https://flyyang.me/tags/Vue/index.html">
 <meta property="og:site_name" content="flyyang&#39;s Blog">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
@@ -95,13 +95,13 @@
 
 
 
-  <link rel="canonical" href="https://flyyang.me/tags/vue/">
+  <link rel="canonical" href="https://flyyang.me/tags/Vue/">
 
 
 
 
 
-  <title> 标签: vue | flyyang's Blog </title>
+  <title> 标签: Vue | flyyang's Blog </title>
 </head>
 
 <body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -245,7 +245,7 @@
   <div id="posts" class="posts-collapse">
     <div class="collection-title">
       <h2>
-        vue
+        Vue
         <small>标签</small>
       </h2>
     </div>
@@ -258,43 +258,17 @@
 
       <h2 class="post-title">
         
-            <a class="post-title-link" href="/2019/02/21/vue-new-instance/" itemprop="url">
+            <a class="post-title-link" href="/2019/03/31/深入浅出-Vue-nextTick/" itemprop="url">
               
-                <span itemprop="name">深入浅出 Vue 实例化</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-02-21T18:02:25+08:00" content="2019-02-21">
-          02-21
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/02/20/vue-build/" itemprop="url">
-              
-                <span itemprop="name">深入浅出 Vue 构建流程</span>
+                <span itemprop="name">深入浅出 Vue nextTick</span>
               
             </a>
         
       </h2>
 
       <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-02-20T16:31:17+08:00" content="2019-02-20">
-          02-20
+        <time class="post-time" itemprop="dateCreated" datetime="2019-03-31T02:38:14+08:00" content="2019-03-31">
+          03-31
         </time>
       </div>
 
@@ -346,7 +320,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -359,7 +333,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -680,6 +654,46 @@
             if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
             if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
             $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+
           });
           proceedsearch();
         }
